@@ -13,26 +13,6 @@ app = FastAPI()
 
 
 
-
-
-posts = [
-    {
-        "id":1,
-        "title":"Random",
-        "text":"Random Random text"
-    },
-    {
-        "id":2,
-        "title":"Random",
-        "text":"Random Random2 text"
-    },
-    {
-        "id": 3,
-        "title":"Random",
-        "text":"Random Random3 text"
-    }
-]
-
 users = []
 
 
@@ -45,31 +25,22 @@ async def greet():
 
 @app.get('/all_posts',tags=["posts"])
 def index():
-    pass
+    posts = posts_serializer(collection_name.find())
+    return {"status": "ok", "data" : posts}
 
-    
-
-@app.get('/posts',tags=["posts"])
-def get_posts():
-    pass
 
 
 @app.get('/posts/{id}',tags=["posts"])
 def single_post(id: int):
-    posts = posts_serializer(collection_name.find())
-    for post in posts:
-        if posts[id] != id:
-            return {
-                "error":"Post with this ID does not exist"
-            }
-        else:
-            if posts["id"] == id:
-                return {
-                    "data": posts
-                }
+    posts = post_serializer(collection_name.find_one({
+        "id":id
+    }))
+    print(posts)
+    return {"data":posts}
 
 
-'''
+
+    '''
     if id > len(posts_serializer(collection_name.find())):
         return {
             "error":"Post with this ID does not exist!"
@@ -80,6 +51,7 @@ def single_post(id: int):
                 "data":post
             }
 '''
+
 
 @app.post('/posts',dependencies=[Depends(jwtBearer())],tags=["posts"])
 def add_post(post : PostSchema):

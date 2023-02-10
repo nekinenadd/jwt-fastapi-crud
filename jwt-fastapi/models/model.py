@@ -38,4 +38,3 @@ class UserLoginSchema(BaseModel):
                 "password":"123"
             }
         }
-
