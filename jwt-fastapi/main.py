@@ -15,42 +15,37 @@ app = FastAPI()
 
 users = []
 
-
+#test
 @app.get('/',tags=["test"])
 async def greet():
     posts = posts_serializer(collection_name.find())
     return {"status": "ok", "data" : posts}
 
 
-
+#get all posts
 @app.get('/all_posts',tags=["posts"])
 def index():
     posts = posts_serializer(collection_name.find())
     return {"status": "ok", "data" : posts}
 
 
-
+#get a single post using ID
 @app.get('/posts/{id}',tags=["posts"])
 def single_post(id: int):
     posts = post_serializer(collection_name.find_one({
         "id":id
     }))
-    print(posts)
     return {"data":posts}
 
+#delete a post using ID
+@app.delete('/posts/{id}',dependencies=[Depends(jwtBearer())],tags=["posts"])
+def delete_post(id: int):
+    post = post_serializer(collection_name.find_one_and_delete({
+        "id":id
+    }))
+    return {"Delete Post": post}
 
 
-    '''
-    if id > len(posts_serializer(collection_name.find())):
-        return {
-            "error":"Post with this ID does not exist!"
-        }
-    for post in posts:
-        if post["id"] == id:
-            return {
-                "data":post
-            }
-'''
 
 
 @app.post('/posts',dependencies=[Depends(jwtBearer())],tags=["posts"])
@@ -58,6 +53,15 @@ def add_post(post : PostSchema):
     collection_name.insert_one(post_serializer(post))
     return {
         "info":"Post Added"
+    }
+
+@app.put('/update/{id}',dependencies=[Depends(jwtBearer())],tags=["posts"])
+def add_post(id:int,post : PostSchema):
+    collection_name.find_one_and_update({"id":id},{
+        "$set":post_serializer(post)
+    })
+    return {
+        "Info":"Post Updated"
     }
 
 
