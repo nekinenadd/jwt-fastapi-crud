@@ -1,5 +1,6 @@
 import uvicorn
-from fastapi import FastAPI,Body,Depends
+from fastapi import FastAPI,Body,Depends,Request
+from fastapi.encoders import jsonable_encoder
 from config.db import collection_name
 from schemas.schemas import post_serializer,posts_serializer
 from models.model import PostSchema,UserSchema,UserLoginSchema
@@ -24,8 +25,8 @@ async def greet():
 
 #get all posts
 @app.get('/all_posts',tags=["posts"])
-def index():
-    posts = posts_serializer(collection_name.find())
+def index(request:Request):
+    posts = jsonable_encoder(collection_name.find())
     return {"status": "ok", "data" : posts}
 
 
@@ -47,17 +48,20 @@ def delete_post(id: int):
 
 
 
+#make a post
+@app.post('/posts/add',dependencies=[Depends(jwtBearer())],tags=["posts"])
+def add_post(request: Request,post : PostSchema):
+    post = jsonable_encoder(post)
 
-@app.post('/posts',dependencies=[Depends(jwtBearer())],tags=["posts"])
-def add_post(post : PostSchema):
-    collection_name.insert_one(post_serializer(post))
+    collection_name.insert_one(post)
     return {
         "info":"Post Added"
     }
 
 @app.put('/update/{id}',dependencies=[Depends(jwtBearer())],tags=["posts"])
 def add_post(id:int,post : PostSchema):
-    collection_name.find_one_and_update({"id":id},{
+
+    collection_name.update_one({"id":id},{
         "$set":post_serializer(post)
     })
     return {
