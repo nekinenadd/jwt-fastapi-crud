@@ -3,7 +3,7 @@ def post_serializer(post) -> dict:
         return {
             "id": str(post["id"]),
             "title": post["title"],
-            "text" : post["text"]
+            "content" : post["content"]
         }
 
 

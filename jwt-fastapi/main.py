@@ -17,22 +17,23 @@ app = FastAPI()
 users = []
 
 #test
+'''
 @app.get('/',tags=["test"])
 async def greet():
     posts = posts_serializer(collection_name.find())
     return {"status": "ok", "data" : posts}
-
+'''
 
 #get all posts
 @app.get('/all_posts',tags=["posts"])
-def index(request:Request):
-    posts = jsonable_encoder(collection_name.find())
+async def index(request:Request):
+    posts = posts_serializer(collection_name.find())
     return {"status": "ok", "data" : posts}
 
 
 #get a single post using ID
 @app.get('/posts/{id}',tags=["posts"])
-def single_post(id: int):
+async def single_post(id: int):
     posts = post_serializer(collection_name.find_one({
         "id":id
     }))
@@ -40,7 +41,7 @@ def single_post(id: int):
 
 #delete a post using ID
 @app.delete('/posts/{id}',dependencies=[Depends(jwtBearer())],tags=["posts"])
-def delete_post(id: int):
+async def delete_post(id: int):
     post = post_serializer(collection_name.find_one_and_delete({
         "id":id
     }))
@@ -50,7 +51,7 @@ def delete_post(id: int):
 
 #make a post
 @app.post('/posts/add',dependencies=[Depends(jwtBearer())],tags=["posts"])
-def add_post(request: Request,post : PostSchema):
+async def add_post(request: Request,post : PostSchema):
     post = jsonable_encoder(post)
 
     collection_name.insert_one(post)
@@ -58,8 +59,10 @@ def add_post(request: Request,post : PostSchema):
         "info":"Post Added"
     }
 
+
+#Update a post 
 @app.put('/update/{id}',dependencies=[Depends(jwtBearer())],tags=["posts"])
-def add_post(id:int,post : PostSchema):
+async def add_post(id:int,post : PostSchema):
 
     collection_name.update_one({"id":id},{
         "$set":post_serializer(post)
@@ -69,12 +72,13 @@ def add_post(id:int,post : PostSchema):
     }
 
 
+#signup a user - not saving in db currently
 @app.post('/user/signup', tags=["user"])
-def user_signup(user: UserSchema = Body(default=None)):
+async def user_signup(user: UserSchema = Body(default=None)):
     users.append(user)
     return signJWT(user.email)
 
-def check_user(data: UserLoginSchema):
+async def check_user(data: UserLoginSchema):
     for user in users:
         if user.email == data.email and user.password == data.password:
             return True
@@ -82,8 +86,9 @@ def check_user(data: UserLoginSchema):
             return False
 
 
+#loging a user - not reading from a db currently 
 @app.post('/user/login',tags=["user"])
-def user_login(user: UserLoginSchema = Body(default=None)):
+async def user_login(user: UserLoginSchema = Body(default=None)):
     if check_user(user):
         return signJWT(user.email)
     else:

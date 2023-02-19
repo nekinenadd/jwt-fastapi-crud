@@ -2,10 +2,10 @@
 
 import time
 import jwt
-from decouple import config
 
-JWT_SECRET = config("secret")
-JWT_ALGORITHM = config("algorithm")
+
+JWT_SECRET = 'config("secret")'
+JWT_ALGORITHM = 'HS256'
 
 
 # func returns generated tokens
