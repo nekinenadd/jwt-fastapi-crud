@@ -4,7 +4,7 @@ import time
 import jwt
 
 
-JWT_SECRET = 'config("secret")'
+JWT_SECRET = 'secretkey123'
 JWT_ALGORITHM = 'HS256'
 
 
