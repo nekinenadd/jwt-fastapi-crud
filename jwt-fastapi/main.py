@@ -96,6 +96,7 @@ async def user_login(user: UserLoginSchema = Body(default=None)):
     else:
         return {
             "error" : "Invalid Login Details"
+        }
      
  
 
