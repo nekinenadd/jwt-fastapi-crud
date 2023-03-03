@@ -17,6 +17,7 @@ app = FastAPI()
 users = []
 
 #test
+
 '''
 @app.get('/',tags=["test"])
 async def greet():
@@ -73,6 +74,7 @@ async def add_post(id:int,post : PostSchema):
 
 
 #signup a user - not saving in db currently
+#Authenticate user by email address (logic is imported) then insert_one into collection
 @app.post('/user/signup', tags=["user"])
 async def user_signup(user: UserSchema = Body(default=None)):
     users.append(user)
@@ -94,12 +96,8 @@ async def user_login(user: UserLoginSchema = Body(default=None)):
     else:
         return {
             "error" : "Invalid Login Details"
-        }
-
-
-
-
-
+     
+ 
 
 
 
